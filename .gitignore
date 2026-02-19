@@ -57,6 +57,7 @@ npm-debug.log
 yarn-error.log
 .next/
 out/
+frontend/dist/
 
 # Testing
 .coverage
