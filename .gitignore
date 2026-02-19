@@ -75,3 +75,9 @@ htmlcov/
 .env.local
 .env.development.local
 .env.test.local
+
+# Deployment documentation (not needed in production)
+*DEPLOY.md
+HACKATHON_AUDIT_REPORT.md
+sample_test.vcf
+
