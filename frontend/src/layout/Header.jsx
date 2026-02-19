@@ -24,20 +24,9 @@ export default function Header() {
   return (
     <header role="banner">
 
-      {/* Top government strip */}
+      {/* Top info strip */}
       <div className="bg-[#002244] text-white py-1 px-4 border-b border-[#003d80]">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            {/* India flag-inspired tricolor bar */}
-            <div className="flex flex-col gap-px w-4" aria-hidden="true">
-              <span className="block h-1 bg-[#FF9933]" />
-              <span className="block h-1 bg-white" />
-              <span className="block h-1 bg-[#138808]" />
-            </div>
-            <span className="text-xs font-medium text-gray-200 tracking-wider uppercase">
-              Government Health Research Portal &mdash; Ministry of Health &amp; Family Welfare
-            </span>
-          </div>
           <div className="hidden md:flex items-center gap-4 text-xs text-gray-400" aria-live="polite">
             <time aria-label="Current date">{dateTime.date}</time>
             <span className="text-gray-600">|</span>

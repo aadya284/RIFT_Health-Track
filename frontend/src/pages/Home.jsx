@@ -115,13 +115,10 @@ export default function Home() {
           <div className="p-5">
             <div className="max-w-3xl text-sm text-gov-text-secondary leading-relaxed space-y-3">
               <p>
-                Adverse Drug Reactions (ADRs) are a significant cause of preventable morbidity and mortality worldwide, accounting for approximately 6–7% of hospital admissions in developed nations. A substantial proportion of these adverse events are attributable to inter-individual variability in drug metabolism, which is largely determined by genetic polymorphisms in drug-metabolizing enzymes and transporters.
+                PharmaGuard predicts how individuals respond to medications based on genetic variants. The system analyzes pharmacogenes and cross-references clinical guidelines to provide personalized drug risk assessments.
               </p>
               <p>
-                PharmaGuard applies pharmacogenomic principles to predict individualized drug response based on a patient's genomic profile. By analyzing variants in key pharmacogenes against established clinical guidelines from the Clinical Pharmacogenomics Implementation Consortium (CPIC) and PharmGKB, the system classifies drug-specific risk and provides evidence-based dosage recommendations.
-              </p>
-              <p>
-                This tool is intended for use by pharmacists, clinical geneticists, and healthcare researchers in a research or pre-clinical context. All outputs must be validated by a qualified clinical professional before clinical application.
+                Upload your VCF genomic data, enter drug names, and receive evidence-based risk classifications with actionable recommendations for safe medication use.
               </p>
             </div>
           </div>
