@@ -25,7 +25,7 @@ export default function Header() {
     <header role="banner">
 
       {/* Top info strip */}
-      <div className="bg-[#002244] text-white py-1 px-4 border-b border-[#003d80]">
+      <div className="bg-[#6B4423] text-white py-1 px-4 border-b border-[#8B5A2B]">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div className="hidden md:flex items-center gap-4 text-xs text-gray-400" aria-live="polite">
             <time aria-label="Current date">{dateTime.date}</time>
@@ -48,34 +48,28 @@ export default function Header() {
             >
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* Stylized Rx / genome cross icon */}
-                <circle cx="20" cy="20" r="18" stroke="#003366" strokeWidth="1.5" fill="none"/>
-                <circle cx="20" cy="20" r="12" stroke="#005ea2" strokeWidth="1" fill="none" strokeDasharray="3 2"/>
+                <circle cx="20" cy="20" r="18" stroke="#964B00" strokeWidth="1.5" fill="none"/>
+                <circle cx="20" cy="20" r="12" stroke="#B8860B" strokeWidth="1" fill="none" strokeDasharray="3 2"/>
                 {/* DNA double helix simplified */}
-                <path d="M13 10 Q20 15 27 10" stroke="#003366" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                <path d="M13 14 Q20 19 27 14" stroke="#005ea2" strokeWidth="1" fill="none" strokeLinecap="round"/>
-                <path d="M13 18 Q20 23 27 18" stroke="#003366" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                <path d="M13 22 Q20 27 27 22" stroke="#005ea2" strokeWidth="1" fill="none" strokeLinecap="round"/>
-                <path d="M13 26 Q20 31 27 26" stroke="#003366" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M13 10 Q20 15 27 10" stroke="#964B00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M13 14 Q20 19 27 14" stroke="#B8860B" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                <path d="M13 18 Q20 23 27 18" stroke="#964B00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M13 22 Q20 27 27 22" stroke="#B8860B" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                <path d="M13 26 Q20 31 27 26" stroke="#964B00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
                 {/* Vertical strands */}
-                <line x1="13" y1="10" x2="13" y2="26" stroke="#003366" strokeWidth="1" />
-                <line x1="27" y1="10" x2="27" y2="26" stroke="#003366" strokeWidth="1" />
+                <line x1="13" y1="10" x2="13" y2="26" stroke="#964B00" strokeWidth="1" />
+                <line x1="27" y1="10" x2="27" y2="26" stroke="#964B00" strokeWidth="1" />
               </svg>
             </div>
 
             <div>
               <div className="flex items-center gap-3">
                 <Link to="/" className="text-2xl font-bold text-gov-blue tracking-tight no-underline hover:no-underline">
-                  PharmaGuard
+                  N.O.V.A
                 </Link>
-                <span
-                  className="text-[10px] font-bold text-white bg-gov-blue px-2 py-0.5 uppercase tracking-widest"
-                  aria-label="Beta version"
-                >
-                  BETA
-                </span>
               </div>
               <p className="text-sm font-medium text-gov-text-secondary mt-0.5 mb-0">
-                Pharmacogenomic Risk Assessment System
+                Novel Omics-guided Variant Analysis
               </p>
               <p className="text-xs text-gov-muted mt-0.5 mb-0">
                 RIFT 2026 Hackathon &bull; HealthTech Track &bull; Powered by CPIC v3.0 / PharmGKB

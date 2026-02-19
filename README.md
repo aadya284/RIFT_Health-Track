@@ -1,6 +1,233 @@
-# PharmaGuard: Pharmacogenomic Analysis Engine
+# N.O.V.A: Novel Omics-guided Variant Analysis
 
 Production-grade pharmacogenomic variant analysis system for RIFT Health-Track hackathon.
+
+## Live Deployment
+
+**Frontend:** [N.O.V.A Web App](http://localhost:3000)  
+**Backend API:** `http://localhost:8000`  
+**API Documentation:** `http://localhost:8000/docs`
+
+## Installation & Running
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+ & npm
+- pip (Python package manager)
+
+### Backend Setup
+```bash
+# Navigate to project root
+cd /Users/priyanshumahobia/Desktop/RIFT_Health-Track
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Run FastAPI server
+python main.py
+# Server starts at http://localhost:8000
+```
+
+### Frontend Setup
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install npm dependencies
+npm install
+
+# Start Vite development server
+npm run dev
+# Frontend starts at http://localhost:3000
+```
+
+### Full Stack Startup (Two Terminals)
+
+**Terminal 1 - Backend:**
+```bash
+cd /Users/priyanshumahobia/Desktop/RIFT_Health-Track
+python main.py
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd /Users/priyanshumahobia/Desktop/RIFT_Health-Track/frontend
+npm run dev
+```
+
+Visit `http://localhost:3000` in your browser.
+
+## Architecture Overview
+
+N.O.V.A is a full-stack pharmacogenomic analysis system:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (React 18)                       │
+│  ├─ Home: Project overview                                  │
+│  ├─ Analyze: VCF upload & drug selection form              │
+│  ├─ Results: Pharmacogenomic report display                │
+│  ├─ Documentation: Clinical guidelines reference           │
+│  └─ About: Team information                                │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+                   HTTP POST: /analyze
+                   (FormData with VCF file)
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│                Backend (FastAPI + Python)                   │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │         Pharmacogenomic Analysis Engine             │  │
+│  ├─ VCF Parser: Extract variants from patient file    │  │
+│  ├─ Phenotype Engine: Map rsIDs to phenotypes         │  │
+│  ├─ Risk Engine: Determine drug-phenotype risk        │  │
+│  └─ Pharmacogenomic Service: Main orchestrator        │  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │    LLM Explainability (Google Gemini Integration)   │  │
+│  ├─ Generates clinical summaries for results          │  │
+│  └─ Provides variant interpretation                   │  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │           Response: Structured JSON                 │  │
+│  ├─ pharmacogenomic_analysis (gene, phenotype, risk)   │  │
+│  └─ clinical_explanation (LLM-generated summary)       │  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Tech Stack
+
+### Frontend
+- **React 18.3.1** - UI framework
+- **Vite** - Build tool & dev server
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Utility-first styling
+- **PostCSS** - CSS transformation
+
+### Backend
+- **FastAPI** - Async web framework
+- **Uvicorn** - ASGI server
+- **Pydantic** - Data validation
+- **Python Multipart** - File upload handling
+- **Google Generative AI** - LLM integration (Gemini)
+
+### Core Analysis
+- **Python 3.10+** - Language
+- **VCF Parser** - Variant call format parsing
+- **Pharmacogenomics Engine** - 4-module system:
+  - `vcf_parser.py` - VCF file processing
+  - `phenotype_engine.py` - Phenotype classification
+  - `risk_engine.py` - Risk determination
+  - `pharmacogenomic_service.py` - Orchestration
+
+## Quick Start
+
+### 1. Start Backend
+```bash
+cd /Users/priyanshumahobia/Desktop/RIFT_Health-Track
+python main.py
+# Output: INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+### 2. Start Frontend (New Terminal)
+```bash
+cd /Users/priyanshumahobia/Desktop/RIFT_Health-Track/frontend
+npm run dev
+# Output: VITE v... ready in ... ms
+#         ➜  Local: http://localhost:3000
+```
+
+### 3. Test API
+```bash
+curl -X POST http://localhost:8000/analyze \
+  -F "vcf_file=@sample_test.vcf" \
+  -F "drug_name=warfarin"
+```
+
+### 4. Use Web Interface
+1. Open `http://localhost:3000`
+2. Click "Analyze"
+3. Upload your VCF file (or use included `sample_test.vcf`)
+4. Select drug (Warfarin, Codeine, etc.)
+5. Submit for analysis
+6. View pharmacogenomic results
+
+## API Reference
+
+### POST /analyze
+
+Analyze a patient's VCF for pharmacogenomic risk with a specific drug.
+
+**Request:**
+```
+Content-Type: multipart/form-data
+
+vcf_file: <binary VCF file>
+drug_name: <string>
+```
+
+**Response (200 OK):**
+```json
+{
+  "status": "success",
+  "pharmacogenomic_analysis": {
+    "primary_gene": "CYP2C9",
+    "detected_rsid": "rs1057910",
+    "phenotype": "IM",
+    "risk_label": "Adjust Dosage",
+    "severity": "moderate",
+    "confidence_score": 0.95
+  },
+  "clinical_explanation": {
+    "clinical_summary": "Patient has intermediate metabolizer status for CYP2C9..."
+  }
+}
+```
+
+**Supported Drugs (Case-Insensitive):**
+- Warfarin → CYP2C9
+- Clopidogrel → CYP2C19
+- Codeine → CYP2D6
+- Simvastatin → SLCO1B1
+- Azathioprine → TPMT
+- 5-Fluorouracil → DPYD
+
+### GET /docs
+
+Interactive API documentation (Swagger UI)
+
+## Team Members
+
+**N.O.V.A Development Team**
+- Priyanshu Mahobia - Full Stack Development (Frontend & Backend)
+
+## Features
+
+### ✅ Core Functionality
+- VCF file upload with drag-and-drop support
+- Multi-drug analysis in single session
+- Structured pharmacogenomic risk assessment
+- LLM-powered clinical interpretations
+- Downloadable JSON reports
+
+### ✅ User Interface
+- Government website styling (USWDS-inspired)
+- Responsive design (mobile-friendly)
+- Real-time form validation
+- Accessibility features (ARIA labels)
+- Alert notifications for errors
+
+### ✅ Clinical Features
+- 6 supported drug-gene pairs
+- CPIC v3.0 guideline compliance
+- Phenotype classification (PM, IM, NM, URM)
+- Risk stratification (Safe, Adjust Dosage, Toxic, Ineffective, Unknown)
+- Confidence scoring (0.0-1.0)
+
+### ✅ Technical Features
+- CORS-enabled for frontend communication
+- Structured error responses
+- FormData file upload support
+- Async request handling
+- Comprehensive error logging
 
 ## Quick Start
 

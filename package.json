@@ -1,0 +1,11 @@
+{
+  "name": "rift-health-track",
+  "version": "1.0.0",
+  "description": "RIFT Health-Track - Pharmacogenomics Analysis Platform",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -33,12 +33,12 @@
   }
 
   a {
-    color: #005ea2;
+    color: #B8860B;
     text-decoration: none;
   }
   a:hover {
     text-decoration: underline;
-    color: #003366;
+    color: #964B00;
   }
 
   a:focus-visible,
@@ -46,7 +46,7 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 3px solid #005ea2;
+    outline: 3px solid #B8860B;
     outline-offset: 2px;
   }
 

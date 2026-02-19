@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function JSONBlock({ data, filename = 'pharmaguard-report.json' }) {
+export default function JSONBlock({ data, filename = 'nova-report.json' }) {
   const [copied, setCopied] = useState(false)
 
   const jsonString = JSON.stringify(data, null, 2)

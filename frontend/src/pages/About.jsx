@@ -45,7 +45,7 @@ export default function About() {
       {/* Page title */}
       <div className="border-b-2 border-gov-blue pb-4 mb-6">
         <h1 className="text-xl font-bold text-gov-blue m-0">
-          About PharmaGuard
+          About N.O.V.A
         </h1>
         <p className="text-sm text-gov-muted mt-1 m-0">
           Project overview, technical specifications, and regulatory disclaimers.
@@ -59,7 +59,7 @@ export default function About() {
         </h2>
         <div className="max-w-3xl text-sm text-gov-text-secondary leading-relaxed space-y-3">
           <p>
-            PharmaGuard was developed for the RIFT 2026 Hackathon, HealthTech Track,
+            N.O.V.A (Novel Omics-guided Variant Analysis) was developed for the RIFT 2026 Hackathon, HealthTech Track,
             as a proof-of-concept pharmacogenomic risk assessment platform. The project
             addresses the clinical challenge of predicting adverse drug reactions based
             on individual genetic profiles.
@@ -72,7 +72,7 @@ export default function About() {
             complexity of interpreting genomic data in the context of specific drug regimens.
           </p>
           <p>
-            PharmaGuard provides a structured, guideline-adherent interface that accepts
+            N.O.V.A provides a structured, guideline-adherent interface that accepts
             standard VCF genomic data, identifies pharmacogenomically relevant variants,
             and translates them into actionable clinical recommendations using established
             evidence-based frameworks.
@@ -194,7 +194,7 @@ export default function About() {
           </h2>
           <ul className="text-xs text-red-800 space-y-1.5 list-disc list-inside m-0">
             <li>
-              PharmaGuard is a research prototype and has not received regulatory approval
+              N.O.V.A is a research prototype and has not received regulatory approval
               from the FDA, EMA, CDSCO, or any other medical device regulatory authority.
             </li>
             <li>
@@ -212,7 +212,7 @@ export default function About() {
             </li>
             <li>
               The developers assume no liability for clinical outcomes resulting from
-              reliance on PharmaGuard outputs.
+              reliance on N.O.V.A outputs.
             </li>
           </ul>
         </div>
