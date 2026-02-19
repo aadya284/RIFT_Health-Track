@@ -21,7 +21,7 @@ from datetime import datetime
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
-from pharmacogenomics.vcf_parser import VCFParser
+from pharmacogenomics.vcf_parser_lite import VCFParserLite as VCFParser
 from pharmacogenomics.risk_engine import RiskEngine
 
 # Import LLM and utility modules
