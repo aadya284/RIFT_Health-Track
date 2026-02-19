@@ -2,10 +2,12 @@ import { useState } from 'react'
 import Alert from './Alert.jsx'
 
 const SUPPORTED_DRUGS = [
-  'Codeine', 'Warfarin', 'Clopidogrel', 'Simvastatin',
-  'Azathioprine', 'Fluorouracil', 'Tamoxifen', 'Citalopram',
-  'Escitalopram', 'Sertraline', 'Omeprazole', 'Pantoprazole',
-  'Irinotecan', 'Capecitabine',
+  'Warfarin',
+  'Clopidogrel',
+  'Codeine',
+  'Simvastatin',
+  'Azathioprine',
+  '5-Fluorouracil',
 ]
 
 export default function DrugInput({ onDrugsChange }) {

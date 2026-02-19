@@ -9,10 +9,12 @@ Integrates:
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import os
 import tempfile
+import logging
 
 # Import pharmacogenomics engine from backend
 import sys
@@ -20,9 +22,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
 
 # Import LLM and utility modules
-from llm_service import generate_llm_response
-from Prompt_builder import build_prompt
-from confidence import calculate_confidence
+from llm_explainability.llm_service import generate_llm_response
+from llm_explainability.Prompt_builder import build_prompt
+from llm_explainability.confidence import calculate_confidence
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # RESPONSE MODELS
@@ -65,6 +69,18 @@ app = FastAPI(
     title="RIFT Health-Track API",
     description="Integrated pharmacogenomics with clinical LLM explanations",
     version="2.0.0"
+)
+
+# ============================================================================
+# CORS CONFIGURATION
+# ============================================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -175,7 +191,15 @@ async def analyze_endpoint(
         return response
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Analysis failed")
+        logger.error(f"Analysis error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "status": "error",
+                "message": "Analysis failed",
+                "details": str(e)
+            }
+        )
     
     finally:
         # Cleanup temp file

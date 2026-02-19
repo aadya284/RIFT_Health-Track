@@ -18,7 +18,7 @@ export default function Analyze() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (errs.length > 0) {
@@ -28,18 +28,39 @@ export default function Analyze() {
     setErrors([])
     setLoading(true)
 
-    // Simulate processing and navigate to results
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      // Create FormData for multipart file upload
+      const formData = new FormData()
+      formData.append('vcf_file', file)
+      formData.append('drug_name', drugs[0] || '')
+      formData.append('generate_explanation', false)
+
+      // POST to backend API
+      const response = await fetch('http://localhost:8000/analyze', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail?.message || 'API request failed')
+      }
+
+      const apiResponse = await response.json()
+
+      // Navigate to results with API response
       navigate('/results', {
         state: {
+          apiResponse,
           filename: file.name,
-          fileSize: file.size,
           drugs,
           submittedAt: new Date().toISOString(),
         }
       })
-    }, 1500)
+    } catch (error) {
+      setErrors([error.message || 'Failed to process analysis. Please try again.'])
+      setLoading(false)
+    }
   }
 
   return (
@@ -108,7 +129,7 @@ export default function Analyze() {
                   <li>Clopidogrel</li>
                   <li>Simvastatin</li>
                   <li>Azathioprine</li>
-                  <li>Fluorouracil</li>
+                  <li>5-Fluorouracil</li>
                 </ul>
               </div>
             </div>
