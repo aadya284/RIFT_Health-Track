@@ -7,14 +7,13 @@ export default function Footer() {
       role="contentinfo"
     >
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-blue-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-yellow-700">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wide text-gray-300 mb-3">
-              PharmaGuard
+              N.O.V.A
             </h2>
             <p className="text-xs text-gray-400 leading-relaxed">
-              A pharmacogenomic risk prediction system developed for the RIFT 2026
-              Hackathon HealthTech Track. Not intended for clinical use.
+              Novel Omics-guided Variant Analysis - A pharmacogenomic risk prediction system developed for the RIFT 2026 Hackathon HealthTech Track. Not intended for clinical use.
             </p>
           </div>
 
@@ -44,7 +43,7 @@ export default function Footer() {
 
         <div className="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-xs text-gray-500 m-0">
-            &copy; {year} PharmaGuard &mdash; RIFT 2026 HealthTech Track. All rights reserved.
+            &copy; {year} N.O.V.A &mdash; RIFT 2026 HealthTech Track. All rights reserved.
           </p>
           <p className="text-xs text-gray-500 m-0">
             Data Source: PharmGKB &bull; CPIC &bull; NCBI

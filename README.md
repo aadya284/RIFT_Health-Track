@@ -1,10 +1,10 @@
-# PharmaGuard: Pharmacogenomic Analysis Engine
+# N.O.V.A: Novel Omics-guided Variant Analysis
 
 Production-grade pharmacogenomic variant analysis system for RIFT Health-Track hackathon.
 
 ## Live Deployment
 
-**Frontend:** [PharmaGuard Web App](http://localhost:3000)  
+**Frontend:** [N.O.V.A Web App](http://localhost:3000)  
 **Backend API:** `http://localhost:8000`  
 **API Documentation:** `http://localhost:8000/docs`
 
@@ -59,7 +59,7 @@ Visit `http://localhost:3000` in your browser.
 
 ## Architecture Overview
 
-PharmaGuard is a full-stack pharmacogenomic analysis system:
+N.O.V.A is a full-stack pharmacogenomic analysis system:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -196,7 +196,7 @@ Interactive API documentation (Swagger UI)
 
 ## Team Members
 
-**PharmaGuard Development Team**
+**N.O.V.A Development Team**
 - Priyanshu Mahobia - Full Stack Development (Frontend & Backend)
 
 ## Features

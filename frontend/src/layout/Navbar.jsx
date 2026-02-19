@@ -11,7 +11,7 @@ const navItems = [
 export default function Navbar() {
   return (
     <nav
-      className="bg-gov-blue sticky top-0 z-40 border-b border-[#002244]"
+      className="bg-gov-blue sticky top-0 z-40 border-b border-[#6B4423]"
       role="navigation"
       aria-label="Main navigation"
     >
@@ -25,8 +25,8 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   `flex items-center px-4 py-3.5 text-sm font-semibold border-b-3 transition-colors tracking-wide ${
                     isActive
-                      ? 'text-white border-b-4 border-b-[#ffcc00] border-b-solid bg-[#002d5c]'
-                      : 'text-blue-200 border-b-4 border-b-transparent hover:text-white hover:bg-[#002d5c]'
+                      ? 'text-white border-b-4 border-b-[#FFD700] border-b-solid bg-[#7D4C2F]'
+                      : 'text-amber-100 border-b-4 border-b-transparent hover:text-white hover:bg-[#7D4C2F]'
                   }`
                 }
               >

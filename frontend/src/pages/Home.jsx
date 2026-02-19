@@ -89,22 +89,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Notice */}
-        <div className="notice-warning" role="note" aria-label="Research use notice">
-          <div className="flex gap-3 items-start">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" className="flex-shrink-0 mt-0.5" aria-hidden="true">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-            <div>
-              <p className="text-xs font-bold text-gov-warning uppercase tracking-wide mb-0.5">Research Use Only &mdash; Not for Clinical Decision Making</p>
-              <p className="text-xs text-amber-800 leading-relaxed">
-                PharmaGuard is a research prototype developed for RIFT 2026 Hackathon. It has not undergone clinical validation or regulatory approval by FDA, EMA, or CDSCO. All outputs must be reviewed by a licensed clinical pharmacist before application.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Section 1: System Overview */}
+        {/* Section 1: System Overview */}}
         <section className="bg-white border border-gov-border" aria-labelledby="overview-heading">
           <div className="border-b border-gov-border px-5 py-3 bg-[#f8f9fa] flex items-center gap-2">
             <span className="w-1 h-4 bg-gov-blue flex-shrink-0 inline-block" aria-hidden="true" />
@@ -115,7 +100,7 @@ export default function Home() {
           <div className="p-5">
             <div className="max-w-3xl text-sm text-gov-text-secondary leading-relaxed space-y-3">
               <p>
-                PharmaGuard predicts how individuals respond to medications based on genetic variants. The system analyzes pharmacogenes and cross-references clinical guidelines to provide personalized drug risk assessments.
+                N.O.V.A predicts how individuals respond to medications based on genetic variants. The system analyzes pharmacogenes and cross-references clinical guidelines to provide personalized drug risk assessments.
               </p>
               <p>
                 Upload your VCF genomic data, enter drug names, and receive evidence-based risk classifications with actionable recommendations for safe medication use.

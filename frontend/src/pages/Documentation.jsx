@@ -2,7 +2,7 @@ const DOC_SECTIONS = [
   {
     id: 'vcf-format',
     title: '1. VCF File Format Requirements',
-    content: `PharmaGuard accepts Variant Call Format (VCF) files conforming to specifications 4.1, 4.2, or 4.3 as defined by the Global Alliance for Genomics and Health (GA4GH).
+    content: `N.O.V.A accepts Variant Call Format (VCF) files conforming to specifications 4.1, 4.2, or 4.3 as defined by the Global Alliance for Genomics and Health (GA4GH).
 
 Required fields:
   - CHROM: Chromosome identifier (e.g., chr22 or 22)
@@ -33,7 +33,7 @@ Genes with full star allele coverage:
   {
     id: 'risk-classification',
     title: '3. Risk Classification Schema',
-    content: `Risk labels are assigned based on CPIC recommendation categories mapped to PharmaGuard classification tiers:
+    content: `Risk labels are assigned based on CPIC recommendation categories mapped to N.O.V.A classification tiers:
 
   Safe – No clinically significant pharmacogenomic interaction detected. Standard prescribing applies.
   Adjust Dosage – Variant(s) detected that require dose modification per CPIC guidelines.
@@ -64,7 +64,7 @@ export default function Documentation() {
           Technical Documentation
         </h1>
         <p className="text-sm text-gov-muted mt-1 m-0">
-          PharmaGuard v1.0.0 &bull; Last updated: February 2026
+          N.O.V.A v1.0.0 &bull; Last updated: February 2026
         </p>
       </div>
 

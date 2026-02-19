@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        'gov-blue': '#003366',
-        'gov-blue-mid': '#005ea2',
+        'gov-blue': '#964B00',
+        'gov-blue-mid': '#B8860B',
         'gov-border': '#d1d5db',
         'gov-bg': '#f3f4f6',
         'gov-text': '#111827',
