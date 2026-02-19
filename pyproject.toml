@@ -1,0 +1,6 @@
+[project]
+name = "rift-health-track"
+version = "1.0.0"
+
+[project.scripts]
+app = "api.index:app"
