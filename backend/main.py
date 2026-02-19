@@ -17,9 +17,9 @@ import tempfile
 import logging
 from datetime import datetime
 
-# Import pharmacogenomics engine from backend
+# Import pharmacogenomics engine (run from backend/ as root)
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
 from pharmacogenomics.vcf_parser import VCFParser
 
