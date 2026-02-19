@@ -19,7 +19,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
 
-# Import LLM and utility modules
+# Import LLM and utility modules from backend/llm explainability
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend', 'llm explainability'))
 from llm_service import generate_llm_response
 from Prompt_builder import build_prompt
 from confidence import calculate_confidence
