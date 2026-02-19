@@ -26,8 +26,16 @@
       "dest": "/api/index.py"
     },
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*\\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$)",
       "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "env": {
@@ -37,5 +45,5 @@
     "api/index.py": {
       "maxDuration": 60
     }
-  },
+  }
 }

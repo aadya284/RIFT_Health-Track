@@ -89,7 +89,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Section 1: System Overview */}}
+        {/* Section 1: System Overview */}
         <section className="bg-white border border-gov-border" aria-labelledby="overview-heading">
           <div className="border-b border-gov-border px-5 py-3 bg-[#f8f9fa] flex items-center gap-2">
             <span className="w-1 h-4 bg-gov-blue flex-shrink-0 inline-block" aria-hidden="true" />
