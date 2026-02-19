@@ -1,12 +1,19 @@
+# render.yaml — Render manifest for backend + frontend
 services:
   - type: web
-    name: rift-health-track-api
-    runtime: python
-    plan: free
+    name: pharmaguard-backend
+    env: python
     region: oregon
-    rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: GEMINI_API_KEY
-        sync: false
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 
+    envVars: []
+
+  - type: static_site
+    name: pharmaguard-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
+    publishPath: frontend/dist
+    envVars: []
