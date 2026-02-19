@@ -22,6 +22,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
 from pharmacogenomics.vcf_parser import VCFParser
+from pharmacogenomics.risk_engine import RiskEngine
 
 # Import LLM and utility modules
 from llm_explainability.explanation_generator import generate_explanation
@@ -145,10 +146,12 @@ async def analyze_endpoint(
         with open(temp_vcf_path, 'wb') as f:
             f.write(contents)
         
-        # Determine drug to analyze (required and validated above).
-        normalized_drug = drug_name.strip()
+        # Normalize drug to canonical key so primary_gene is always correct (alias + case)
+        normalized_drug = RiskEngine.normalize_drug(drug_name) or drug_name.strip()
+        if not normalized_drug:
+            raise HTTPException(status_code=400, detail="drug_name required")
 
-        # Step 1: Core pharmacogenomic analysis
+        # Step 1: Core pharmacogenomic analysis (primary_gene from drug→gene mapping only)
         pharma_result = pharma_analyze(temp_vcf_path, normalized_drug)
 
         # Step 2: Collect ALL detected variants for the primary gene (only those we can accurately assess)
@@ -198,6 +201,7 @@ async def analyze_endpoint(
         llm_explanation: Dict[str, str] = {}
         if pharma_result["primary_gene"] and generate_explanation:
             try:
+                # Pass exact primary_gene from drug mapping so LLM uses correct gene
                 llm_explanation = generate_explanation(
                     gene=pharma_result["primary_gene"],
                     rsid=pharma_result["detected_rsid"] or "Unknown",

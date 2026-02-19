@@ -74,37 +74,25 @@ def configure_logging(level: str = "INFO") -> None:
             mod_logger.addHandler(handler)
 
 
-def _rank_phenotype(phenotype: str) -> int:
-    """
-    Rank phenotype by severity (worst to best).
-    PM > URM > IM > NM > Unknown
-    
-    Higher rank = worse phenotype.
-    """
-    phenotype_rank = {
-        "PM": 5,
-        "URM": 4,
-        "IM": 3,
-        "NM": 2,
-        "Unknown": 1
-    }
-    return phenotype_rank.get(phenotype, 0)
 
 
-def _get_confidence_score(phenotype: str) -> float:
+def _get_confidence_score(phenotype: str, inferred_nm: bool = False) -> float:
     """
-    Get confidence score based on phenotype.
+    Get confidence score based on phenotype and evidence (CPIC-aligned).
     
-    PM/URM: 0.95
-    IM: 0.85
-    NM: 0.70
-    Unknown: 0.0
+    - Genotype-confirmed PM/URM (high clinical impact): 0.95
+    - IM (dose/adjust): 0.85
+    - Genotype-confirmed NM (tested, normal): 0.75
+    - Inferred NM (no variants detected, assumed wild-type): 0.60
+    - Unknown (unmapped variant or no call): 0.0
     """
+    if inferred_nm:
+        return 0.60  # Lower confidence when we infer NM from absence of variants
     phenotype_confidence = {
         "PM": 0.95,
         "URM": 0.95,
         "IM": 0.85,
-        "NM": 0.70,
+        "NM": 0.75,
         "Unknown": 0.0
     }
     return phenotype_confidence.get(phenotype, 0.0)
@@ -127,14 +115,23 @@ def analyze(vcf_file_path: str, drug_name: str) -> Dict[str, Any]:
         - severity: str - One of: none, low, moderate, high, critical
         - confidence_score: float - Confidence in the analysis (0.0-1.0)
     """
-    # Normalize drug input - case insensitive
-    drug_name = drug_name.strip().upper()
-    logger.info(f"Starting analysis: vcf_file_path={vcf_file_path}, drug={drug_name}")
+    # Normalize to canonical drug key (uppercase + alias resolution) so primary_gene is correct
+    canonical_drug = RiskEngine.normalize_drug(drug_name)
+    if not canonical_drug:
+        logger.warning("Empty drug name")
+        return {
+            "primary_gene": None,
+            "detected_rsid": None,
+            "phenotype": "Unknown",
+            "risk_label": "Unknown",
+            "severity": "none",
+            "confidence_score": 0.0
+        }
+    logger.info(f"Starting analysis: vcf_file_path={vcf_file_path}, drug={canonical_drug}")
     
-    # Fast path: validate drug first (O(1) frozenset lookup)
-    if not RiskEngine.is_known_drug(drug_name):
-        logger.warning(f"Unknown drug: {drug_name}")
-        # Safe fallback for unknown drugs - per hackathon spec
+    # Fast path: validate drug first (O(1) frozenset lookup on canonical key)
+    if not RiskEngine.is_known_drug(canonical_drug):
+        logger.warning(f"Unknown drug: {drug_name} (canonical: {canonical_drug})")
         return {
             "primary_gene": None,
             "detected_rsid": None,
@@ -144,8 +141,8 @@ def analyze(vcf_file_path: str, drug_name: str) -> Dict[str, Any]:
             "confidence_score": 0.0
         }
     
-    # Get gene for drug (O(1) lookup)
-    primary_gene = RiskEngine.get_gene_for_drug(drug_name)
+    # Primary gene comes only from drug→gene mapping (never from VCF/variants)
+    primary_gene = RiskEngine.get_gene_for_drug(canonical_drug)
     
     # Parse VCF (cached if VCFCache context is active)
     if vcf_file_path in _VCF_CACHE:
@@ -165,29 +162,24 @@ def analyze(vcf_file_path: str, drug_name: str) -> Dict[str, Any]:
     phenotype = "Unknown"
     confidence_score = 0.0
     
-    # If variants found, select WORST phenotype (Requirement #6)
+    # Infer phenotype from variant combination (CPIC diplotype logic)
+    inferred_nm = False
     if gene_variants:
-        # Get phenotypes for all variants
-        phenotypes = []
-        for variant in gene_variants:
-            rsid = variant.get("rsid")
-            phen = PhenotypeEngine.get_phenotype(primary_gene, rsid)
-            phenotypes.append((phen, rsid))
-        
-        # Select worst phenotype (highest rank)
-        worst_phenotype, worst_rsid = max(phenotypes, key=lambda x: _rank_phenotype(x[0]))
-        phenotype = worst_phenotype
-        detected_rsid = worst_rsid
-        logger.debug(f"Selected worst phenotype: {phenotype} from {len(phenotypes)} variants")
+        rsids = [v.get("rsid") for v in gene_variants if v.get("rsid")]
+        phenotype, detected_rsid = PhenotypeEngine.infer_phenotype_from_variants(primary_gene, rsids)
+        if not detected_rsid and rsids:
+            detected_rsid = rsids[0]
+        # If all variants unmapped, phenotype is Unknown
+        logger.debug(f"Inferred phenotype: {phenotype} from {len(rsids)} variants for {primary_gene}")
     else:
-        # No variants for this gene: treat as Normal Metabolizer instead of Unknown
         phenotype = "NM"
+        inferred_nm = True
     
-    # Get confidence score based on phenotype (Requirement #7)
-    confidence_score = _get_confidence_score(phenotype)
+    # Get confidence score: lower for inferred NM, higher for genotype-confirmed
+    confidence_score = _get_confidence_score(phenotype, inferred_nm=inferred_nm)
     
-    # Get risk and severity from normalized drug name and phenotype
-    risk_label, severity = RiskEngine.get_risk_and_severity(drug_name, phenotype)
+    # Get risk and severity from canonical drug and phenotype
+    risk_label, severity = RiskEngine.get_risk_and_severity(canonical_drug, phenotype)
     
     # RETURN EXACTLY 6 KEYS AS PER HACKATHON SPEC
     result = {
@@ -199,5 +191,5 @@ def analyze(vcf_file_path: str, drug_name: str) -> Dict[str, Any]:
         "confidence_score": float(confidence_score)
     }
     
-    logger.info(f"Analysis complete: {drug_name} -> {risk_label} ({severity}), confidence={confidence_score}")
+    logger.info(f"Analysis complete: {canonical_drug} -> gene={primary_gene} -> {risk_label} ({severity}), confidence={confidence_score}")
     return result

@@ -106,43 +106,51 @@ export default function Results() {
   const state = location.state || {}
   const { apiResponse, filename, drugs, submittedAt } = state
 
-  // If we have an API response, use it; otherwise fall back to mock data
-  if (apiResponse && apiResponse.pharmacogenomic_analysis) {
-    const pharmaData = apiResponse.pharmacogenomic_analysis
-    const reportId = 'RPT-' + Math.random().toString(36).slice(2, 9).toUpperCase()
-    const patientId = 'SAMPLE-' + Math.random().toString(36).slice(2, 6).toUpperCase()
+  // Backend returns: patient_id, drug, risk_assessment, pharmacogenomic_profile, clinical_recommendation, quality_metrics
+  const hasApiResponse = apiResponse && (apiResponse.pharmacogenomic_profile != null || apiResponse.risk_assessment != null)
+
+  if (hasApiResponse) {
+    const risk = apiResponse.risk_assessment || {}
+    const profile = apiResponse.pharmacogenomic_profile || {}
+    const llmBlock = apiResponse.clinical_recommendation?.llm_generated_explanation || {}
+    const confidenceScore = risk.confidence_score != null ? risk.confidence_score : 0
+    const drugName = apiResponse.drug || (drugs && drugs[0]) || 'Unknown'
+
+    const detectedVariants = (profile.detected_variants || []).map(v => ({
+      rsid: v.rsid || '—',
+      position: v.position || 'N/A',
+      genotype: v.genotype || 'N/A',
+      impact: v.impact || '—'
+    }))
 
     const report = {
-      reportId,
-      patientId,
-      generatedAt: new Date().toISOString(),
+      reportId: 'RPT-' + Math.random().toString(36).slice(2, 9).toUpperCase(),
+      patientId: apiResponse.patient_id || 'SAMPLE-unknown',
+      generatedAt: apiResponse.timestamp || new Date().toISOString(),
       inputFile: filename || 'sample.vcf',
       guidelineSource: 'CPIC v3.0',
-      drugs: drugs || [state.drug_name],
+      drugs: drugs || [drugName],
       pharmacogenomicProfile: {
-        primaryGene: pharmaData.primary_gene || 'Unknown',
-        phenotype: pharmaData.phenotype || 'Unknown',
-        metabolizerStatus: pharmaData.phenotype || 'Unknown',
+        primaryGene: profile.primary_gene || 'Unknown',
+        diplotype: profile.diplotype || '—',
+        phenotype: profile.phenotype || 'Unknown',
+        metabolizerStatus: profile.phenotype || 'Unknown',
       },
       riskAssessment: [{
-        drug: state.drug_name || 'Unknown',
-        riskLabel: pharmaData.risk_label,
-        severity: pharmaData.severity,
-        confidence: `${(pharmaData.confidence_score * 100).toFixed(1)}%`
+        drug: drugName,
+        riskLabel: risk.risk_label ?? 'Unknown',
+        severity: (risk.severity || 'none').replace(/^./, c => c.toUpperCase()),
+        confidence: `${(Number(confidenceScore) * 100).toFixed(1)}%`
       }],
-      detectedVariants: pharmaData.detected_rsid ? [{
-        rsid: pharmaData.detected_rsid,
-        position: 'N/A',
-        genotype: 'N/A',
-        impact: 'High'
-      }] : [],
-      clinicalRecommendation: `Based on ${pharmaData.primary_gene} analysis, the patient phenotype is ${pharmaData.phenotype}. Risk classification: ${pharmaData.risk_label}. Confidence: ${(pharmaData.confidence_score * 100).toFixed(1)}%.`,
+      detectedVariants,
+      clinicalRecommendation: llmBlock.summary || `Based on ${profile.primary_gene || 'gene'} analysis, phenotype is ${profile.phenotype || 'Unknown'}. Risk: ${risk.risk_label ?? 'Unknown'}. Confidence: ${(Number(confidenceScore) * 100).toFixed(1)}%.`,
       llmInterpretation: {
-        summary: apiResponse.clinical_explanation?.clinical_summary || 'Clinical analysis based on pharmacogenomic profile.',
+        summary: llmBlock.summary || 'Clinical analysis based on pharmacogenomic profile.',
         mechanism: 'See clinical summary',
-        variantCitations: pharmaData.detected_rsid ? [`${pharmaData.detected_rsid}: ${pharmaData.primary_gene} variant`] : [],
-        clinicalSignificance: `Evidence level based on confidence score: ${(pharmaData.confidence_score * 100).toFixed(1)}%`
-      }
+        variantCitations: (profile.detected_variants || []).map(v => `${v.rsid}: ${profile.primary_gene || 'gene'} variant`),
+        clinicalSignificance: `Confidence score: ${(Number(confidenceScore) * 100).toFixed(1)}%`
+      },
+      confidenceScore: Number(confidenceScore)
     }
 
     return (
@@ -206,7 +214,9 @@ export default function Results() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-gov-border">
             {[
               { label: 'Primary Gene', value: report.pharmacogenomicProfile.primaryGene },
+              { label: 'Diplotype', value: report.pharmacogenomicProfile.diplotype },
               { label: 'Phenotype', value: report.pharmacogenomicProfile.phenotype },
+              { label: 'Metabolizer Status', value: report.pharmacogenomicProfile.metabolizerStatus },
             ].map((item, idx) => (
               <div
                 key={item.label}
@@ -242,7 +252,7 @@ export default function Results() {
               {report.clinicalRecommendation}
             </p>
             <p className="text-xs text-gov-muted mt-3 mb-0 border-t border-gov-border pt-2">
-              Source: CPIC Guidelines v3.0 &bull; Confidence: {(pharmaData.confidence_score * 100).toFixed(1)}% &bull;
+              Source: CPIC Guidelines v3.0 &bull; Confidence: {((report.confidenceScore ?? 0) * 100).toFixed(1)}% &bull;
               Guideline Reference:{' '}
               <a
                 href="https://cpicpgx.org"
