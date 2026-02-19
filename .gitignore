@@ -58,6 +58,7 @@ yarn-error.log
 .next/
 out/
 frontend/dist/
+public/
 
 # Testing
 .coverage
