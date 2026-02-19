@@ -22,6 +22,7 @@ PHENOTYPE_MAPPINGS: Dict[str, Dict[str, str]] = {
         "rs1799853": "IM",
         "rs9332131": "NM",
         "rs28365065": "URM",
+        "rs28371686": "IM",  # CYP2C9*8 variant - decreased function
     },
     "CYP2C19": {
         "rs4986893": "PM",
@@ -34,18 +35,21 @@ PHENOTYPE_MAPPINGS: Dict[str, Dict[str, str]] = {
         "rs4149056": "IM",
         "rs2306283": "NM",
         "rs11045878": "URM",
+        "rs4149043": "IM",  # SLCO1B1 variant - decreased function
     },
     "TPMT": {
         "rs1800462": "PM",
         "rs1800460": "IM",
         "rs1799853": "NM",
         "rs1800464": "URM",
+        "rs1142345": "PM",  # TPMT*3A/*3C variant - no function
     },
     "DPYD": {
         "rs3918290": "PM",
         "rs55886062": "IM",
         "rs1801158": "NM",
         "rs75017182": "URM",
+        "rs67376798": "IM",  # DPYD variant - decreased function, carrier status
     },
 }
 

@@ -11,19 +11,20 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict, Any
 import os
 import tempfile
 import logging
+from datetime import datetime
 
 # Import pharmacogenomics engine from backend
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 from pharmacogenomics import analyze as pharma_analyze, configure_logging
+from pharmacogenomics.vcf_parser import VCFParser
 
 # Import LLM and utility modules
-from llm_explainability.llm_service import generate_llm_response
-from llm_explainability.Prompt_builder import build_prompt
+from llm_explainability.explanation_generator import generate_explanation
 from llm_explainability.confidence import calculate_confidence
 
 logger = logging.getLogger(__name__)
@@ -50,15 +51,6 @@ class ClinicalExplanation(BaseModel):
     drug_metabolism_impact: str
     cpic_alignment: str
     recommendation: str
-
-
-class AnalysisResponse(BaseModel):
-    """Complete analysis response with pharma + LLM explanation"""
-    status: str
-    message: str
-    pharmacogenomic_analysis: PharmaAnalysisResult
-    clinical_explanation: Optional[ClinicalExplanation] = None
-    enhanced_confidence: Optional[float] = None
 
 
 # ============================================================================
@@ -88,12 +80,26 @@ app.add_middleware(
 # ENDPOINTS
 # ============================================================================
 
+
+def _infer_diplotype_from_phenotype(phenotype: str) -> str:
+    """
+    Lightweight diplotype heuristic so we don't return 'Unknown'.
+    This is NOT a full CPIC diplotype caller, just a readable label.
+    """
+    mapping = {
+        "PM": "*X/*X (poor metabolizer)",
+        "IM": "*1/*X (intermediate metabolizer)",
+        "NM": "*1/*1 (normal metabolizer)",
+        "URM": "*1/*1xN (ultra-rapid metabolizer)",
+    }
+    return mapping.get(phenotype, "Not determined")
+
 @app.post("/analyze")
 async def analyze_endpoint(
     vcf_file: UploadFile = File(..., description="VCF file with variants"),
     drug_name: str = Form(..., description="Drug name to analyze"),
     generate_explanation: bool = Form(False, description="Generate LLM clinical explanation")
-) -> AnalysisResponse:
+) -> Dict[str, Any]:
     """
     Comprehensive pharmacogenomic analysis with optional LLM explanation.
     
@@ -111,7 +117,7 @@ async def analyze_endpoint(
     # Validate input
     if not drug_name or not drug_name.strip():
         raise HTTPException(status_code=400, detail="drug_name required")
-    
+
     if not vcf_file or not vcf_file.filename:
         raise HTTPException(status_code=400, detail="VCF file required")
     
@@ -126,68 +132,126 @@ async def analyze_endpoint(
         )
         
         contents = await vcf_file.read()
+
+        # Basic VCF quality metrics (computed from uploaded bytes)
+        head_text = contents[:8192].decode("utf-8", errors="ignore")
+        has_vcf_header = ("##fileformat=VCF" in head_text) or ("\n#CHROM\t" in ("\n" + head_text))
+        has_gene_annotation = ("GENE=" in head_text) or ("GENENAMES=" in head_text) or ("ANN=" in head_text)
+        variant_line_count = sum(
+            1 for line in contents.splitlines()
+            if line and not line.startswith(b"#")
+        )
+
         with open(temp_vcf_path, 'wb') as f:
             f.write(contents)
         
+        # Determine drug to analyze (required and validated above).
+        normalized_drug = drug_name.strip()
+
         # Step 1: Core pharmacogenomic analysis
-        pharma_result = pharma_analyze(temp_vcf_path, drug_name)
+        pharma_result = pharma_analyze(temp_vcf_path, normalized_drug)
+
+        # Step 2: Collect ALL detected variants for the primary gene (only those we can accurately assess)
+        detected_variants = []
+        primary_gene = pharma_result.get("primary_gene")
         
-        pharma_data = PharmaAnalysisResult(
-            primary_gene=pharma_result["primary_gene"],
-            detected_rsid=pharma_result["detected_rsid"],
-            phenotype=pharma_result["phenotype"],
-            risk_label=pharma_result["risk_label"],
-            severity=pharma_result["severity"],
-            confidence_score=pharma_result["confidence_score"]
-        )
-        
-        # Step 2: Optional LLM clinical explanation
-        clinical_exp = None
-        enhanced_conf = None
-        
-        if generate_explanation and pharma_result["primary_gene"]:
+        if primary_gene:
             try:
-                # Build prompt for LLM
-                prompt = build_prompt(
+                from pharmacogenomics.phenotype_engine import PHENOTYPE_MAPPINGS
+                parser = VCFParser(temp_vcf_path)
+                variants_by_gene = parser.parse()
+                gene_variants = variants_by_gene.get(primary_gene, [])
+                logger.info(f"Found {len(gene_variants)} variants for gene {primary_gene}")
+                
+                # Only include variants we have phenotype mappings for (ensures accuracy)
+                for variant in gene_variants:
+                    rsid = variant.get("rsid")
+                    if rsid:
+                        # Check if this rsID is in our phenotype mappings (ensures accurate assessment)
+                        if primary_gene in PHENOTYPE_MAPPINGS and rsid in PHENOTYPE_MAPPINGS[primary_gene]:
+                            detected_variants.append({"rsid": rsid})
+                            logger.debug(f"Added mapped variant rsID: {rsid} for gene {primary_gene}")
+                        else:
+                            logger.debug(f"Skipped unmapped variant rsID: {rsid} for gene {primary_gene} (not in phenotype mappings - ensuring accuracy)")
+                        
+            except Exception as e:
+                logger.error(f"Failed to parse variants for detected_variants: {e}", exc_info=True)
+        
+        # Always include the detected_rsid from pharma_result if it's a mapped variant
+        if pharma_result.get("detected_rsid"):
+            rsid_from_result = pharma_result["detected_rsid"]
+            if not any(v.get("rsid") == rsid_from_result for v in detected_variants):
+                # Verify it's a mapped variant before adding (ensures accuracy)
+                from pharmacogenomics.phenotype_engine import PHENOTYPE_MAPPINGS
+                primary_gene = pharma_result.get("primary_gene")
+                if primary_gene and primary_gene in PHENOTYPE_MAPPINGS:
+                    if rsid_from_result in PHENOTYPE_MAPPINGS[primary_gene]:
+                        detected_variants.append({"rsid": rsid_from_result})
+                        logger.info(f"Added detected_rsid from pharma_result: {rsid_from_result}")
+        
+        # Log final detected variants for debugging
+        logger.info(f"Final detected_variants count: {len(detected_variants)}")
+        if detected_variants:
+            logger.info(f"Detected rsIDs: {[v.get('rsid') for v in detected_variants]}")
+
+        # Step 3: Optional LLM clinical explanation (structured)
+        llm_explanation: Dict[str, str] = {}
+        if pharma_result["primary_gene"] and generate_explanation:
+            try:
+                llm_explanation = generate_explanation(
                     gene=pharma_result["primary_gene"],
                     rsid=pharma_result["detected_rsid"] or "Unknown",
-                    genotype="Heterozygous",  # Could be inferred from phenotype
                     phenotype=pharma_result["phenotype"],
-                    drug=drug_name
+                    drug=normalized_drug,
+                    risk_label=pharma_result["risk_label"],
                 )
-                
-                # Generate LLM response
-                llm_text = generate_llm_response(prompt)
-                
-                # Parse LLM response (basic parsing)
-                sections = llm_text.split("\n")
-                clinical_exp = ClinicalExplanation(
-                    clinical_summary=sections[0] if len(sections) > 0 else llm_text[:200],
-                    genetic_details="See clinical summary",
-                    biological_mechanism="See clinical summary",
-                    drug_metabolism_impact="See clinical summary",
-                    cpic_alignment="See clinical summary",
-                    recommendation=sections[-1] if len(sections) > 1 else llm_text[-200:]
-                )
-                
-                # Calculate enhanced confidence using CPIC guidelines
-                cpic_level = "B"  # Default; could be enhanced with CPIC API
-                phenotype_certainty = "inferred" if pharma_result["detected_rsid"] else "limited"
-                enhanced_conf = calculate_confidence(cpic_level, phenotype_certainty)
-                
             except Exception as e:
                 # Log but don't fail if LLM fails
-                print(f"LLM explanation generation failed: {e}")
-        
-        # Return unified response
-        response = AnalysisResponse(
-            status="success",
-            message="Analysis completed successfully",
-            pharmacogenomic_analysis=pharma_data,
-            clinical_explanation=clinical_exp,
-            enhanced_confidence=enhanced_conf
-        )
-        
+                logger.error(f"LLM explanation generation failed: {e}")
+                llm_explanation = {}
+
+        # Build unified hackathon response schema
+        patient_id = f"PATIENT_{os.urandom(4).hex().upper()}"
+        timestamp = datetime.utcnow().isoformat() + "Z"
+
+        risk_assessment = {
+            "risk_label": pharma_result["risk_label"],
+            "confidence_score": pharma_result["confidence_score"],
+            "severity": pharma_result["severity"],
+        }
+
+        pharmacogenomic_profile = {
+            "primary_gene": pharma_result["primary_gene"],
+            "diplotype": _infer_diplotype_from_phenotype(pharma_result["phenotype"]),
+            "phenotype": pharma_result["phenotype"],
+            "detected_variants": detected_variants,
+        }
+
+        llm_summary = None
+        if llm_explanation:
+            llm_summary = llm_explanation.get("summary")
+
+        clinical_recommendation = {
+            "llm_generated_explanation": {
+                "summary": llm_summary,
+                "score": float(pharma_result["confidence_score"]),
+            }
+        }
+
+        response: Dict[str, Any] = {
+            "patient_id": patient_id,
+            "drug": normalized_drug,
+            "timestamp": timestamp,
+            "risk_assessment": risk_assessment,
+            "pharmacogenomic_profile": pharmacogenomic_profile,
+            "clinical_recommendation": clinical_recommendation,
+            "quality_metrics": {
+                "vcf_parsing_success": bool(has_vcf_header),
+                "variant_count": int(variant_line_count),
+                "has_gene_annotation": bool(has_gene_annotation),
+            },
+        }
+
         return response
         
     except Exception as e:

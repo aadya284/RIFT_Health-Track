@@ -179,6 +179,9 @@ def analyze(vcf_file_path: str, drug_name: str) -> Dict[str, Any]:
         phenotype = worst_phenotype
         detected_rsid = worst_rsid
         logger.debug(f"Selected worst phenotype: {phenotype} from {len(phenotypes)} variants")
+    else:
+        # No variants for this gene: treat as Normal Metabolizer instead of Unknown
+        phenotype = "NM"
     
     # Get confidence score based on phenotype (Requirement #7)
     confidence_score = _get_confidence_score(phenotype)
