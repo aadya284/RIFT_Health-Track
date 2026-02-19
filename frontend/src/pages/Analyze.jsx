@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import FileUpload from '../components/FileUpload.jsx'
 import DrugInput from '../components/DrugInput.jsx'
 import Alert from '../components/Alert.jsx'
+import { API_ENDPOINTS } from '../config/api.js'
 
 export default function Analyze() {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ export default function Analyze() {
       formData.append('generate_explanation', false)
 
       // POST to backend API
-      const response = await fetch('http://localhost:8000/analyze', {
+      const response = await fetch(API_ENDPOINTS.analyze, {
         method: 'POST',
         body: formData,
       })
