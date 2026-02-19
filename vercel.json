@@ -1,8 +1,14 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "npm -C frontend install && npm -C frontend run build",
-  "outputDirectory": "frontend/dist",
   "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "frontend/dist"
+      }
+    },
     {
       "src": "api/index.py",
       "use": "@vercel/python",
@@ -34,10 +40,6 @@
       "dest": "/api/index.py"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
       "src": "/(.*\\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$)",
       "dest": "/$1"
     },
@@ -54,6 +56,5 @@
       "maxDuration": 60,
       "memory": 3008
     }
-  },
-  "framework": "vite"
+  }
 }
