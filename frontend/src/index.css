@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Source Sans 3", "Noto Sans", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #111827;
+    background-color: #f3f4f6;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    color: #111827;
+    margin-top: 0;
+    font-weight: 700;
+  }
+
+  a {
+    color: #005ea2;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+    color: #003366;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #005ea2;
+    outline-offset: 2px;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+}
+
+@layer components {
+
+  /* ── Page wrapper */
+  .page-wrapper {
+    @apply max-w-5xl mx-auto px-6 py-8;
+  }
+
+  /* ── Page title bar */
+  .page-title-bar {
+    @apply border-b-2 border-gov-blue pb-5 mb-8;
+  }
+  .page-title {
+    @apply text-2xl font-bold text-gov-blue tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-sm text-gov-muted mt-1.5;
+  }
+
+  /* ── Section */
+  .gov-section {
+    @apply py-8 border-b border-gov-border;
+  }
+  .gov-section:last-of-type {
+    @apply border-b-0;
+  }
+  .section-heading {
+    @apply text-base font-bold text-gov-text uppercase tracking-wider mb-1 flex items-center gap-2;
+  }
+  .section-heading::before {
+    content: '';
+    @apply inline-block w-1 h-4 bg-gov-blue flex-shrink-0;
+  }
+  .section-subheading {
+    @apply text-sm text-gov-muted mb-4 mt-1 max-w-2xl;
+  }
+
+  /* ── Card / Panel */
+  .gov-card {
+    @apply bg-white border border-gov-border;
+  }
+  .gov-card-header {
+    @apply bg-gov-blue text-white px-5 py-3 flex items-center justify-between;
+  }
+  .gov-card-header-title {
+    @apply text-xs font-semibold uppercase tracking-widest text-white;
+  }
+  .gov-card-body {
+    @apply p-5;
+  }
+
+  /* ── Form label */
+  .gov-label {
+    @apply block text-sm font-semibold text-gov-text mb-1.5;
+  }
+
+  /* ── Form input */
+  .gov-input {
+    @apply w-full border border-gov-border bg-white px-3 py-2.5 text-sm text-gov-text
+      focus:outline-none focus:border-gov-blue-mid focus:ring-2 focus:ring-gov-blue-mid/20
+      placeholder:text-gray-400;
+  }
+
+  /* ── Buttons */
+  .gov-btn-primary {
+    @apply bg-gov-blue text-white px-6 py-2.5 text-sm font-semibold
+      border border-gov-blue cursor-pointer
+      hover:bg-gov-blue-mid hover:border-gov-blue-mid
+      disabled:opacity-50 disabled:cursor-not-allowed
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gov-blue;
+  }
+  .gov-btn-secondary {
+    @apply bg-white text-gov-blue px-5 py-2.5 text-sm font-semibold
+      border border-gov-blue cursor-pointer
+      hover:bg-gov-bg
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gov-blue;
+  }
+  .gov-btn-ghost {
+    @apply bg-transparent text-gov-blue-mid text-sm font-medium
+      border border-gov-border px-4 py-2 cursor-pointer
+      hover:bg-gov-bg;
+  }
+
+  /* ── Alerts */
+  .alert-base {
+    @apply border-l-4 px-4 py-3 text-sm flex gap-3 items-start;
+  }
+  .alert-error {
+    @apply alert-base border-gov-danger bg-red-50 text-gov-danger;
+  }
+  .alert-warning {
+    @apply alert-base border-gov-warning bg-amber-50 text-amber-800;
+  }
+  .alert-info {
+    @apply alert-base border-gov-blue-mid bg-blue-50 text-gov-blue-mid;
+  }
+  .alert-success {
+    @apply alert-base border-gov-success bg-green-50 text-gov-success;
+  }
+
+  /* ── Status badge */
+  .badge {
+    @apply inline-block text-xs font-semibold px-2.5 py-1 border;
+  }
+  .badge-success { @apply badge bg-green-50 text-gov-success border-gov-success; }
+  .badge-warning { @apply badge bg-amber-50 text-amber-700 border-amber-500; }
+  .badge-danger  { @apply badge bg-red-50  text-gov-danger  border-gov-danger;  }
+  .badge-orange  { @apply badge bg-orange-50 text-orange-700 border-orange-500; }
+  .badge-muted   { @apply badge bg-gray-50  text-gov-muted   border-gov-border; }
+  .badge-blue    { @apply badge bg-blue-50  text-gov-blue-mid border-gov-blue-mid; }
+
+  /* ── Table */
+  .gov-table {
+    @apply w-full text-sm border border-gov-border;
+  }
+  .gov-table thead tr {
+    @apply bg-[#e8edf2] border-b border-gov-border;
+  }
+  .gov-table th {
+    @apply text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gov-text border-r border-gov-border last:border-r-0;
+  }
+  .gov-table td {
+    @apply px-4 py-3 border-r border-gov-border last:border-r-0;
+  }
+  .gov-table tbody tr {
+    @apply border-b border-gov-border last:border-b-0;
+  }
+  .gov-table tbody tr:nth-child(even) {
+    @apply bg-gray-50/60;
+  }
+
+  /* ── Stat card */
+  .stat-card {
+    @apply bg-white border border-gov-border p-4 flex flex-col gap-1;
+  }
+  .stat-label { @apply text-xs font-semibold text-gov-muted uppercase tracking-wide; }
+  .stat-value { @apply text-2xl font-bold text-gov-blue leading-none; }
+  .stat-desc  { @apply text-xs text-gov-muted; }
+
+  /* ── Step indicator */
+  .step-badge {
+    @apply flex-shrink-0 w-8 h-8 bg-gov-blue text-white text-sm font-bold
+      flex items-center justify-center;
+  }
+
+  /* ── Info row (key/value) */
+  .info-row {
+    @apply flex border-b border-gov-border last:border-b-0;
+  }
+  .info-key {
+    @apply w-44 flex-shrink-0 px-4 py-3 text-xs font-semibold text-gov-muted
+      bg-[#f3f4f6] border-r border-gov-border uppercase tracking-wide;
+  }
+  .info-val {
+    @apply flex-1 px-4 py-3 text-sm text-gov-text;
+  }
+
+  /* ── Notice / callout */
+  .notice-warning {
+    @apply border border-amber-300 border-l-4 border-l-gov-warning bg-amber-50 px-4 py-3;
+  }
+  .notice-danger {
+    @apply border border-red-300 border-l-4 border-l-gov-danger bg-red-50 px-4 py-3;
+  }
+  .notice-info {
+    @apply border border-blue-200 border-l-4 border-l-gov-blue-mid bg-blue-50 px-4 py-3;
+  }
+
+  /* ── Accordion */
+  .accordion-trigger {
+    @apply w-full flex items-center justify-between px-5 py-3.5
+      bg-[#e8edf2] hover:bg-[#dde3ea] text-left text-sm font-semibold
+      text-gov-text border-0 cursor-pointer;
+  }
+  .accordion-body {
+    @apply px-5 py-4 border-t border-gov-border bg-white text-sm text-gov-text-secondary leading-relaxed;
+  }
+
+  /* ── Print styles */
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .gov-card { border: 1px solid #ccc; }
+  }
+}
