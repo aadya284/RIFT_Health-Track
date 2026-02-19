@@ -36,18 +36,35 @@ export default function Analyze() {
       formData.append('drug_name', drugs[0] || '')
       formData.append('generate_explanation', false)
 
+      console.log('Calling API:', API_ENDPOINTS.analyze)
+      console.log('Drug name:', drugs[0])
+      console.log('File:', file.name)
+
       // POST to backend API
       const response = await fetch(API_ENDPOINTS.analyze, {
         method: 'POST',
         body: formData,
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail?.message || 'API request failed')
+        let errorMessage = 'API request failed'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.detail?.message || errorData.detail || errorData.message || errorMessage
+          console.error('API Error:', errorData)
+        } catch (parseError) {
+          const text = await response.text()
+          errorMessage = `Server error (${response.status}): ${text || response.statusText}`
+          console.error('Failed to parse error response:', parseError, 'Raw:', text)
+        }
+        throw new Error(errorMessage)
       }
 
       const apiResponse = await response.json()
+      console.log('API Response received:', apiResponse)
 
       // Navigate to results with API response
       navigate('/results', {
@@ -59,6 +76,7 @@ export default function Analyze() {
         }
       })
     } catch (error) {
+      console.error('Error in handleSubmit:', error)
       setErrors([error.message || 'Failed to process analysis. Please try again.'])
       setLoading(false)
     }

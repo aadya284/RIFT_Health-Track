@@ -1,27 +1,22 @@
 """
 Vercel serverless function entry point for RIFT Health-Track API
+FastAPI app exported for Vercel
 """
 import sys
-import os
+from pathlib import Path
 
-# Add backend directory to Python path for Vercel
-# When running on Vercel, the working directory is the project root
-backend_path = os.path.join(os.path.dirname(__file__), '..', 'backend')
-if os.path.exists(backend_path):
-    sys.path.insert(0, backend_path)
-    sys.path.insert(0, os.path.dirname(__file__))
+# Get the project root directory (parent of api/)
+project_root = Path(__file__).parent.parent
+backend_path = project_root / "backend"
 
-# Change to backend directory so relative imports work
-original_cwd = os.getcwd()
-if os.path.exists(backend_path):
-    os.chdir(backend_path)
+# Add backend to Python path so we can import from backend/main.py
+if str(backend_path) not in sys.path:
+    sys.path.insert(0, str(backend_path))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-try:
-    # Import the FastAPI app from backend/main.py
-    from main import app
-finally:
-    # Restore original working directory
-    os.chdir(original_cwd)
+# Import the FastAPI app from backend/main.py
+# This must be at module level for Vercel to detect it
+from main import app
 
-# Export the app for Vercel
-handler = app
+# Vercel auto-detects FastAPI when 'app' is exported at module level

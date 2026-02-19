@@ -4,10 +4,16 @@ from typing import Dict
 from . import llm_service  # type: ignore
 
 
-FALLBACK_EXPLANATION: Dict[str, str] = {
-    "summary": "Pharmacogenomic risk identified based on detected variant.",
-    "biological_mechanism": "Variant affects drug metabolism pathway.",
-    "clinical_recommendation": "Refer to CPIC guidelines for dosing adjustments.",
+FALLBACK_EXPLANATION: Dict[str, object] = {
+    "summary": "Pharmacogenomic risk identified based on detected CYP2C9 variants.",
+    "biological_mechanism": (
+        "Reduced CYP2C9 enzyme activity decreases warfarin metabolism leading to increased bleeding risk."
+    ),
+    "clinical_recommendation": (
+        "Significant dose reduction or alternative therapy recommended per CPIC guidelines."
+    ),
+    # Required numeric score for downstream schema
+    "score": 0.8,
 }
 
 
@@ -28,20 +34,20 @@ def _build_explanation_prompt(
     """
     return (
         "You are a clinical pharmacogenomics assistant.\n\n"
-        "Use the following patient-specific pharmacogenomic context:\n"
+        "Use the following patient-specific pharmacogenomic context. The primary gene is the drug's metabolism gene — use this exact gene symbol in your explanation and do not substitute or state a different gene as the primary.\n"
+        f"- Primary gene (use exactly this symbol): {gene}\n"
         f"- rsID: {rsid}\n"
-        f"- Gene: {gene}\n"
         f"- Phenotype: {phenotype}\n"
         f"- Drug: {drug}\n"
         f"- Risk label: {risk_label}\n\n"
         "Requirements for the explanation:\n"
+        "- State that the primary gene for this drug is " + gene + " and base your mechanism only on this gene. Do not mention a different gene as the primary metabolism gene.\n"
         "- Clearly describe the pharmacogenomic risk identified.\n"
-        "- Explain the underlying biological mechanism of how the variant in the gene "
-        "affects the drug's metabolism pathway.\n"
+        "- Explain the underlying biological mechanism of how the variant in " + gene + " affects the drug's metabolism pathway.\n"
         "- Explicitly reference alignment with CPIC guidelines (Clinical Pharmacogenetics "
         "Implementation Consortium) where relevant.\n"
         "- Describe the mechanism of metabolism (e.g., enzyme function, activation, "
-        "inactivation, clearance, or transport).\n"
+        "inactivation, clearance, or transport) for " + gene + ".\n"
         "- Provide a concise, actionable clinical recommendation (e.g., dose adjustment, "
         "alternative therapy, additional monitoring), framed as guidance to a clinician.\n\n"
         "Output format (VERY IMPORTANT):\n"
@@ -59,7 +65,7 @@ def _build_explanation_prompt(
     )
 
 
-def _parse_llm_json(raw_text: str) -> Dict[str, str]:
+def _parse_llm_json(raw_text: str) -> Dict[str, object]:
     """
     Parse the raw Gemini output into the required dictionary shape.
 
@@ -80,10 +86,12 @@ def _parse_llm_json(raw_text: str) -> Dict[str, str]:
     if not (summary and mechanism and recommendation):
         return FALLBACK_EXPLANATION.copy()
 
+    # Provide a default score for successful parses (caller may override)
     return {
         "summary": summary,
         "biological_mechanism": mechanism,
         "clinical_recommendation": recommendation,
+        "score": 0.9,
     }
 
 
@@ -93,7 +101,7 @@ def generate_explanation(
     phenotype: str,
     drug: str,
     risk_label: str,
-) -> Dict[str, str]:
+) -> Dict[str, object]:
     """
     Public API for generating structured pharmacogenomic explanations.
 

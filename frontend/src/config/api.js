@@ -18,3 +18,12 @@ export const API_ENDPOINTS = {
   health: `${API_BASE_URL}/health`,
   docs: `${API_BASE_URL}/docs`,
 }
+
+// Debug logging
+if (import.meta.env.DEV) {
+  console.log('API Configuration:', {
+    baseUrl: API_BASE_URL,
+    endpoints: API_ENDPOINTS,
+    isProd: import.meta.env.PROD
+  })
+}
